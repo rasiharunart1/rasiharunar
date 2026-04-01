@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harun Ar Rasyid | IoT & AI Engineer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* === CSS VARIABLES & THEME === */
+        :root {
+            --bg-dark: #030a06;
+            --color-primary: #00ff88;
+            --color-secondary: #00b377;
+            --color-tertiary: #054f34;
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+            
+            /* Glassmorphism Variables */
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-bg-hover: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-highlight: rgba(0, 255, 136, 0.3);
+            --glass-blur: blur(24px);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --glass-glow: inset 0 0 32px rgba(0, 255, 136, 0.02);
+            --border-radius-lg: 30px;
+            --border-radius-md: 20px;
+            
+            /* Transitions */
+            --transition-fluid: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* === GLOBAL STYLES === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            cursor: none; /* Custom cursor */
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-tertiary);
+            border-radius: 10px;
+        }
+
+        /* === CUSTOM CURSOR === */
+        .cursor-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: width 0.3s, height 0.3s;
+            mix-blend-mode: screen;
+        }
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            box-shadow: 0 0 10px var(--color-primary);
+            transition: transform 0.1s;
+        }
+
+        /* === BACKGROUND ANIMATION (LIQUID BLOBS) === */
+        .bg-container {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: var(--bg-dark);
+        }
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s infinite alternate ease-in-out;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+        }
+        .blob-1 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, var(--color-tertiary) 0%, transparent 70%);
+            top: -10%; left: -10%;
+            animation-duration: 25s;
+        }
+        .blob-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(0, 179, 119, 0.3) 0%, transparent 70%);
+            bottom: -20%; right: -10%;
+            animation-duration: 22s;
+            animation-delay: -5s;
+        }
+        .blob-3 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, transparent 70%);
+            top: 40%; left: 50%;
+            animation-duration: 18s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+            33% { transform: translate(50px, -50px) rotate(120deg) scale(1.1); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            66% { transform: translate(-20px, 20px) rotate(240deg) scale(0.9); border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+            100% { transform: translate(0, 0) rotate(360deg) scale(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+        }
+
+        /* === UTILITIES === */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--glass-shadow), var(--glass-glow);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-fluid);
+        }
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+        .glass-panel:hover::before {
+            left: 150%;
+        }
+        
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 50px;
+            text-align: center;
+            background: linear-gradient(135deg, #fff, var(--color-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+        
+        .text-green { color: var(--color-primary); }
+        .text-muted { color: var(--text-muted); }
+
+        /* Scroll Reveal Utility */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* === NAVBAR === */
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            z-index: 1000;
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition-fluid);
+            opacity: 0.7;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            opacity: 1;
+            color: var(--color-primary);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        .nav-logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: var(--color-primary);
+        }
+
+        /* === HERO SECTION === */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+        .hero-content {
+            max-width: 800px;
+        }
+        .hero h1 {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+        .hero h1 span {
+            display: block;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--bg-dark);
+            background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
+            border-radius: 50px;
+            text-decoration: none;
+            transition: var(--transition-fluid);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: none; /* Let custom cursor handle it */
+        }
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.5);
+            background: linear-gradient(45deg, var(--color-secondary), var(--color-primary));
+        }
+
+        /* === ABOUT SECTION === */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        .about-text {
+            padding: 40px;
+        }
+        .about-text p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        .highlight-boxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .highlight-box {
+            padding: 25px;
+            text-align: center;
+            border-radius: var(--border-radius-md);
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition-fluid);
+        }
+        .highlight-box:hover {
+            border-color: var(--glass-border-highlight);
+            transform: translateY(-5px);
+            background: rgba(0, 255, 136, 0.05);
+        }
+        .highlight-box i {
+            font-size: 2rem;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 8px rgba(0,255,136,0.5));
+        }
+
+        /* === SKILLS SECTION === */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .skill-card {
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+        }
+        .skill-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--color-primary);
+        }
+        .skill-list {
+            list-style: none;
+        }
+        .skill-list li {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+        .skill-list li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--color-primary);
+        }
+
+        /* === PROJECTS SECTION === */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        .project-card {
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            height: 100%;
+        }
+        .project-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--glass-border-highlight);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 40px rgba(0, 255, 136, 0.05);
+        }
+        .project-category {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .project-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .project-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tech-tag {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--color-primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .project-features {
+            border-top: 1px solid var(--glass-border);
+            padding-top: 15px;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+        .project-features i {
+            color: var(--color-primary);
+            margin-right: 5px;
+        }
+
+        /* === EXPERIENCE TIMELINE === */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            width: 2px; height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--color-primary), transparent);
+            transform: translateX(-50%);
+        }
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 50%;
+            position: relative;
+            margin-bottom: 40px;
+        }
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: 50%;
+        }
+        .timeline-content {
+            width: 90%;
+            padding: 25px;
+            border-radius: var(--border-radius-md);
+        }
+        .timeline-dot {
+            position: absolute;
+            top: 20px;
+            right: -10px;
+            width: 20px; height: 20px;
+            background: var(--bg-dark);
+            border: 3px solid var(--color-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--color-primary);
+            z-index: 2;
+        }
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: -10px;
+            right: auto;
+        }
+        .timeline-date {
+            color: var(--color-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        /* === CONTACT SECTION === */
+        .contact-container {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 60px;
+        }
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        .social-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: var(--transition-fluid);
+        }
+        .social-btn:hover {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--color-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.2);
+            color: var(--color-primary);
+        }
+        .social-btn i {
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--glass-border);
+            position: relative;
+            z-index: 10;
+            background: rgba(3, 10, 6, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        /* === RESPONSIVE DESIGN === */
+        @media (max-width: 992px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+            .timeline::before {
+                left: 20px;
+            }
+            .timeline-item, .timeline-item:nth-child(even) {
+                justify-content: flex-start;
+                padding-left: 50px;
+                padding-right: 0;
+            }
+            .timeline-content {
+                width: 100%;
+            }
+            .timeline-dot, .timeline-item:nth-child(even) .timeline-dot {
+                left: 10px;
+                right: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .section-title { font-size: 2rem; }
+            nav { width: 95%; padding: 12px 20px; }
+            .nav-links { display: none; /* Can implement hamburger menu later if needed */ }
+            .nav-logo { margin: 0 auto; }
+            .cursor-glow, .cursor-dot { display: none; } /* Disable custom cursor on mobile */
+            body { cursor: auto; }
+            .btn { cursor: pointer; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Animation -->
+    <div class="bg-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-glow" id="cursor-glow"></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
+
+    <!-- Navigation -->
+    <nav class="glass-panel">
+        <div class="nav-logo">H.A.R.</div>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content reveal">
+            <h1>Harun <span>Ar Rasyid</span></h1>
+            <p>"Building Smart Systems with IoT, AI, and Real-Time Control"</p>
+            <div style="margin-bottom: 20px;">
+                <span class="tech-tag" style="background: transparent;">IoT Engineer</span>
+                <span class="tech-tag" style="background: transparent;">Embedded System Developer</span>
+                <span class="tech-tag" style="background: transparent;">Live Stream Engineer</span>
+            </div>
+            <a href="#projects" class="btn mt-4">Explore My Work</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section-container">
+        <h2 class="section-title reveal">About Me</h2>
+        <div class="about-grid">
+            <div class="glass-panel about-text reveal">
+                <p>Saya adalah seorang Engineer yang berfokus pada pengembangan sistem cerdas end-to-end. Keahlian saya mencakup perancangan arsitektur IoT, pemrograman *embedded system*, hingga integrasi *Computer Vision* menggunakan AI di perangkat *Edge*.</p>
+                <p>Saya tidak hanya membuat perangkat keras berfungsi, tetapi memastikan mereka dapat berkomunikasi secara *real-time*, andal (mendukung *offline-first* & *cloud sync*), dan terintegrasi mulus dengan *dashboard* berbasis web.</p>
+                <div class="mt-4" style="margin-top: 30px;">
+                    <a href="#contact" style="color: var(--color-primary); text-decoration: none; display: flex; align-items: center; gap: 10px; font-weight: 600;">
+                        Let's connect <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="highlight-boxes reveal">
+                <div class="highlight-box glass-panel">
+                    <i class="fas fa-microchip"></i>
+                    <h3>Smart IoT Systems</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 10px;">Arsitektur hybrid (Offline + Cloud)</p>
+                </div>
+                <div class="highlight-box glass-panel">
+                    <i class="fas fa-brain"></i>
+                    <h3>Edge AI Processing</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 10px;">YOLOv8 & OpenCV on Raspberry Pi</p>
+                </div>
+                <div class="highlight-box glass-panel">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Real-Time Monitoring</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 10px;">Sensor integration & low latency</p>
+                </div>
+                <div class="highlight-box glass-panel">
+                    <i class="fas fa-layer-group"></i>
+                    <h3>HW + SW Integration</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 10px;">Firmware to Web Dashboard</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section-container">
+        <h2 class="section-title reveal">Technical Expertise</h2>
+        <div class="skills-grid">
+            <div class="skill-card glass-panel reveal">
+                <h3><i class="fas fa-network-wired"></i> Embedded & IoT</h3>
+                <ul class="skill-list">
+                    <li>ESP32, ESP8266, Arduino</li>
+                    <li>IoT System Architecture (Offline/Cloud)</li>
+                    <li>I2C Comm. (Multi-device Master-Slave)</li>
+                    <li>Serial Comm. & Data Handling</li>
+                    <li>Cloud Integrations (Arduino, Custom)</li>
+                </ul>
+            </div>
+            <div class="skill-card glass-panel reveal" style="transition-delay: 0.1s;">
+                <h3><i class="fas fa-eye"></i> AI & Computer Vision</h3>
+                <ul class="skill-list">
+                    <li>YOLOv8 & ONNX</li>
+                    <li>OpenCV Processing</li>
+                    <li>Edge AI Deployment</li>
+                    <li>Raspberry Pi Environment</li>
+                    <li>Performance Optimization (Low Latency)</li>
+                </ul>
+            </div>
+            <div class="skill-card glass-panel reveal" style="transition-delay: 0.2s;">
+                <h3><i class="fas fa-server"></i> Web & Backend</h3>
+                <ul class="skill-list">
+                    <li>Laravel Framework</li>
+                    <li>REST API Development</li>
+                    <li>Network Comm. (HTTP, HTTPS, JSON)</li>
+                    <li>Dashboard UI/UX Integration</li>
+                    <li>Git & Version Control</li>
+                </ul>
+            </div>
+            <div class="skill-card glass-panel reveal" style="transition-delay: 0.3s;">
+                <h3><i class="fas fa-tools"></i> Hardware & Electronics</h3>
+                <ul class="skill-list">
+                    <li>Sensor Integration & Interfacing</li>
+                    <li>Power Monitoring (PZEM004T, Multi-battery)</li>
+                    <li>LCD Interface (I2C PCF8574)</li>
+                    <li>Hardware & Firmware Debugging</li>
+                    <li>Linux OS Basics</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section-container">
+        <h2 class="section-title reveal">Featured Projects</h2>
+        
+        <h3 class="text-green reveal" style="margin-bottom: 20px; font-size: 1.2rem;"><i class="fas fa-microchip"></i> Core IoT & AI Projects</h3>
+        <div class="projects-grid mb-5" style="margin-bottom: 60px;">
+            <!-- Project 1 -->
+            <div class="project-card glass-panel reveal">
+                <div class="project-category">Smart Home</div>
+                <h3 class="project-title">ESP8266 Hybrid Control</h3>
+                <div class="project-tech">
+                    <span class="tech-tag">ESP8266</span>
+                    <span class="tech-tag">PCF8574</span>
+                    <span class="tech-tag">Web Control</span>
+                </div>
+                <p class="project-desc">Sistem kendali rumah cerdas berbasis ESP8266 menggunakan modul relay PCF8574. Mengutamakan keandalan dengan arsitektur offline-first yang tetap tersinkronisasi dengan kontrol web.</p>
+                <div class="project-features">
+                    <div><i class="fas fa-check-circle"></i> Offline-first architecture</div>
+                    <div class="mt-1"><i class="fas fa-check-circle"></i> I2C Relay Expansion</div>
+                </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="project-card glass-panel reveal" style="transition-delay: 0.1s;">
+                <div class="project-category">Computer Vision</div>
+                <h3 class="project-title">Fish Egg Counter</h3>
+                <div class="project-tech">
+                    <span class="tech-tag">YOLOv8 ONNX</span>
+                    <span class="tech-tag">Raspberry Pi</span>
+                    <span class="tech-tag">Arduino Cloud</span>
+                </div>
+                <p class="project-desc">Sistem AI Edge untuk menghitung telur ikan secara akurat. Menggunakan kamera pada Raspberry Pi untuk inferensi YOLOv8, menampilkan data pada LCD, dan terhubung ke Arduino Cloud.</p>
+                <div class="project-features">
+                    <div><i class="fas fa-check-circle"></i> Edge AI Inference</div>
+                    <div class="mt-1"><i class="fas fa-check-circle"></i> Real-time LCD Dashboard</div>
+                </div>
+            </div>
+
+            <!-- Project 3 -->
+            <div class="project-card glass-panel reveal" style="transition-delay: 0.2s;">
+                <div class="project-category">Security & Tracking</div>
+                <h3 class="project-title">Cobox Smart Locker</h3>
+                <div class="project-tech">
+                    <span class="tech-tag">Solar Power</span>
+                    <span class="tech-tag">IoT Tracking</span>
+                    <span class="tech-tag">Camera API</span>
+                </div>
+                <p class="project-desc">Loker cerdas bertenaga surya dengan fitur pelacakan lokasi IoT dan keamanan kamera. Memastikan barang aman dengan pemantauan jarak jauh.</p>
+                <div class="project-features">
+                    <div><i class="fas fa-check-circle"></i> Solar energy management</div>
+                    <div class="mt-1"><i class="fas fa-check-circle"></i> Integrated security camera</div>
+                </div>
+            </div>
+
+            <!-- Project 4 -->
+            <div class="project-card glass-panel reveal" style="transition-delay: 0.3s;">
+                <div class="project-category">Energy Monitoring</div>
+                <h3 class="project-title">Power Monitor System</h3>
+                <div class="project-tech">
+                    <span class="tech-tag">PZEM004T</span>
+                    <span class="tech-tag">Multi-Battery</span>
+                    <span class="tech-tag">Data Logging</span>
+                </div>
+                <p class="project-desc">Sistem monitoring listrik mendalam yang menganalisis tegangan dari banyak baterai secara simultan dan konsumsi daya real-time menggunakan sensor PZEM.</p>
+                <div class="project-features">
+                    <div><i class="fas fa-check-circle"></i> Multi-node voltage analysis</div>
+                    <div class="mt-1"><i class="fas fa-check-circle"></i> Precision power logging</div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-green reveal" style="margin-bottom: 20px; font-size: 1.2rem;"><i class="fas fa-cog"></i> Product / Hardware Projects</h3>
+        <div class="projects-grid mb-5" style="margin-bottom: 60px;">
+            <div class="project-card glass-panel reveal">
+                <div class="project-category">Wearable Tech</div>
+                <h3 class="project-title">Heated Belt & Pillow</h3>
+                <div class="project-tech">
+                    <span class="tech-tag">Thermal Control</span>
+                    <span class="tech-tag">Safety Circuit</span>
+                </div>
+                <p class="project-desc">Pengembangan sabuk dan bantal pemanas pintar dengan sistem kontrol suhu presisi. Dilengkapi fitur keamanan terintegrasi untuk mencegah overheating.</p>
+                <div class="project-features">
+                    <div><i class="fas fa-check-circle"></i> Smart heating control loop</div>
+                </div>
+            </div>
+            
+            <div class="project-card glass-panel reveal" style="transition-delay: 0.1s;">
+                <div class="project-category">Environment</div>
+                <h3 class="project-title">NoiseMon</h3>
+                <div class="project-tech">
+                    <span class="tech-tag">Audio Sensor</span>
+                    <span class="tech-tag">Data Logger</span>
+                </div>
+                <p class="project-desc">Perangkat pemantau tingkat kebisingan lingkungan berbasis sensor audio dengan kemampuan pencatatan data log secara periodik.</p>
+                <div class="project-features">
+                    <div><i class="fas fa-check-circle"></i> Continuous acoustic logging</div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-green reveal" style="margin-bottom: 20px; font-size: 1.2rem;"><i class="fas fa-globe"></i> Web & Platform</h3>
+        <div class="projects-grid">
+            <div class="project-card glass-panel reveal" style="grid-column: 1 / -1;">
+                <div class="project-category">LMS Platform</div>
+                <h3 class="project-title">Moodle ASN Banyumas "Jatilan Ngapak"</h3>
+                <div class="project-tech">
+                    <span class="tech-tag">Moodle Custom</span>
+                    <span class="tech-tag">UI/UX Redesign</span>
+                    <span class="tech-tag">System Integration</span>
+                </div>
+                <p class="project-desc">Pengembangan kustom platform Learning Management System (LMS) berbasis Moodle untuk ASN Kabupaten Banyumas. Melakukan redesain UI menyeluruh, integrasi fitur modern, serta menanamkan identitas dan nuansa lokal daerah.</p>
+                <div class="project-features">
+                    <div><i class="fas fa-check-circle"></i> End-to-end platform customization</div>
+                    <div class="mt-1"><i class="fas fa-check-circle"></i> Modernizing legacy LMS interface</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience / Timeline -->
+    <section id="experience" class="section-container">
+        <h2 class="section-title reveal">Journey & Milestones</h2>
+        <div class="timeline">
+            <!-- Timeline Items -->
+            <div class="timeline-item reveal">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content glass-panel">
+                    <div class="timeline-date">Present</div>
+                    <h3>IoT & Embedded Engineer</h3>
+                    <p class="text-muted" style="font-size: 0.9rem; margin-top: 10px;">Fokus pada pengembangan ekosistem Smart System end-to-end, mulai dari hardware design, edge AI (YOLOv8), hingga integrasi dashboard Web/Cloud.</p>
+                </div>
+            </div>
+            <div class="timeline-item reveal">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content glass-panel">
+                    <div class="timeline-date">Recent Projects</div>
+                    <h3>Platform & Web Integration</h3>
+                    <p class="text-muted" style="font-size: 0.9rem; margin-top: 10px;">Berhasil menyelesaikan kustomisasi LMS Moodle ASN Banyumas "Jatilan Ngapak" dan merancang REST API untuk sinkronisasi perangkat IoT.</p>
+                </div>
+            </div>
+            <div class="timeline-item reveal">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content glass-panel">
+                    <div class="timeline-date">Hardware Dev</div>
+                    <h3>Product Prototyping</h3>
+                    <p class="text-muted" style="font-size: 0.9rem; margin-top: 10px;">Mengembangkan purwarupa produk perangkat keras (Heated Belt, Heated Pillow, NoiseMon, Cobox Locker) dengan fokus pada stabilitas dan power management.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section-container">
+        <div class="glass-panel contact-container reveal">
+            <h2 class="section-title" style="margin-bottom: 20px;">Get in Touch</h2>
+            <p class="text-muted">Tertarik untuk berkolaborasi dalam pengembangan sistem IoT, AI Vision, atau platform Web? Mari diskusikan ide Anda.</p>
+            
+            <div class="social-links">
+                <a href="mailto:email@example.com" class="social-btn glass-panel">
+                    <i class="fas fa-envelope"></i> Email Me
+                </a>
+                <a href="https://github.com/username" target="_blank" class="social-btn glass-panel">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="https://wa.me/628000000000" target="_blank" class="social-btn glass-panel">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Harun Ar Rasyid. Designed with <i class="fas fa-heart text-green"></i> using pure HTML/CSS/JS.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Custom Cursor Logic
+        const cursorGlow = document.getElementById('cursor-glow');
+        const cursorDot = document.getElementById('cursor-dot');
+        
+        // Cek jika device mobile, matikan event listener kursor
+        if (window.matchMedia("(min-width: 768px)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                // Animasi halus untuk glow
+                cursorGlow.animate({
+                    left: `${x}px`,
+                    top: `${y}px`
+                }, { duration: 500, fill: "forwards" });
+
+                // Dot instan mengikuti kursor
+                cursorDot.style.left = `${x}px`;
+                cursorDot.style.top = `${y}px`;
+            });
+
+            // Efek hover pada elemen interaktif
+            const interactives = document.querySelectorAll('a, .btn, .project-card, .skill-card, .highlight-box');
+            interactives.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursorGlow.style.width = '500px';
+                    cursorGlow.style.height = '500px';
+                    cursorGlow.style.background = 'radial-gradient(circle, rgba(0, 255, 136, 0.25) 0%, rgba(0,0,0,0) 70%)';
+                    cursorDot.style.transform = 'translate(-50%, -50%) scale(2)';
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursorGlow.style.width = '400px';
+                    cursorGlow.style.height = '400px';
+                    cursorGlow.style.background = 'radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, rgba(0,0,0,0) 70%)';
+                    cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
+                });
+            });
+        }
+
+        // Scroll Reveal Animation (Intersection Observer)
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Hanya animate sekali
+                }
+            });
+        };
+
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
+        
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Parallax ringan pada background blobs saat scroll
+        const blobs = document.querySelectorAll('.blob');
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            blobs[0].style.transform = `translateY(${scrollY * 0.1}px)`;
+            blobs[1].style.transform = `translateY(${-scrollY * 0.15}px)`;
+            blobs[2].style.transform = `translateY(${scrollY * 0.05}px)`;
+        });
+
+        // Active State di Navbar
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-links a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
